@@ -1,0 +1,27 @@
+name: knowledge-base
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: knowledge_base
+      POSTGRES_USER: knowledge_base
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be configured}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - kb-postgres:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_buffers=64MB", "-c", "max_connections=30", "-c", "work_mem=4MB"]
+    mem_limit: 384m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U knowledge_base -d knowledge_base"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  kb-postgres:

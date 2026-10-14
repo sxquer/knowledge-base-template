@@ -1,0 +1,55 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.production.example
+auth.json
+*.pem
+*.key
+*.p12
+*.pfx
+.DS_Store
+*.log
+
+# Installed dependencies and generated frontend
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+
+# All application data, uploads, sessions and compiled caches
+/storage/**/*
+!/storage/**/
+!/storage/**/.gitignore
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+/database/*
+!/database/.gitignore
+!/database/migrations/
+!/database/factories/
+!/database/seeders/
+*.sqlite*
+*.sql
+*.dump
+/imports/
+/exports/
+/backups/
+/shared/
+/deploy/vpn/
+
+# Local tooling
+/.codex/
+/.cursor/
+/.idea/
+/.vscode/
+/.nova/
+/.zed/
+/.phpunit.cache/
+.phpunit.result.cache
+.phpactor.json
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db

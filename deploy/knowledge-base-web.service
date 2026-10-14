@@ -1,0 +1,15 @@
+[Unit]
+Description=Knowledge base knowledge base isolated PHP-FPM
+After=network.target docker.service
+[Service]
+Type=simple
+ExecStart=/usr/sbin/php-fpm8.4 --fpm-config /srv/knowledge-base/current/deploy/php-fpm-master.conf --nodaemonize
+ExecReload=/bin/kill -USR2 $MAINPID
+KillSignal=SIGQUIT
+Restart=on-failure
+RuntimeDirectory=knowledge-base
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true
+[Install]
+WantedBy=multi-user.target

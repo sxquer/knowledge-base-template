@@ -1,0 +1,19 @@
+[Unit]
+Description=Knowledge base knowledge indexing and audit queue
+After=network-online.target docker.service
+[Service]
+Type=simple
+User=knowledge-base
+Group=knowledge-base
+WorkingDirectory=/srv/knowledge-base/current
+ExecStart=/usr/bin/php8.4 artisan queue:work --sleep=2 --tries=3 --timeout=120 --max-time=3600
+Restart=always
+RestartSec=5
+TimeoutStopSec=150
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/knowledge-base/shared /srv/knowledge-base/current/bootstrap/cache
+[Install]
+WantedBy=multi-user.target

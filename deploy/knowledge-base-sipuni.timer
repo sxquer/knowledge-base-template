@@ -1,0 +1,10 @@
+[Unit]
+Description=Import Knowledge base Sipuni calls every thirty minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30min
+Unit=knowledge-base-sipuni.service
+
+[Install]
+WantedBy=timers.target

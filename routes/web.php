@@ -1,0 +1,65 @@
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CallLibraryController;
+use App\Http\Controllers\CallRecordingController;
+use App\Http\Controllers\KnowledgeController;
+use App\Http\Controllers\MeetingRecordingController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\TranscriptionSettingsController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', fn () => redirect('/app'));
+Route::get('/login', [AuthController::class, 'show'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+Route::post('/setup', [AuthController::class, 'setup'])->middleware('throttle:6,1');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/p/{publication}', [KnowledgeController::class, 'publicPage'])->middleware('throttle:120,1');
+Route::get('/media/{asset}', [KnowledgeController::class, 'media'])->middleware('throttle:240,1');
+Route::middleware('auth')->group(function () {
+    Route::put('/api/calls/{recording}/review', [CallLibraryController::class, 'review'])->middleware('throttle:60,1');
+    Route::get('/api/calls', [CallLibraryController::class, 'index']);
+    Route::get('/api/call-library/settings', [CallLibraryController::class, 'settings']);
+    Route::put('/api/call-library/settings', [CallLibraryController::class, 'configure'])->middleware('throttle:10,1');
+    Route::post('/api/call-library/sync', [CallLibraryController::class, 'sync'])->middleware('throttle:3,1');
+    Route::post('/api/calls/{recording}/evaluate', [CallLibraryController::class, 'evaluate'])->middleware('throttle:30,1');
+    Route::post('/api/pages/{page}/call-references', [CallLibraryController::class, 'attach'])->middleware('throttle:20,1');
+    Route::put('/api/transcription-settings', [TranscriptionSettingsController::class, 'update'])->middleware('throttle:10,1');
+    Route::post('/api/pages/{page}/calls', [CallRecordingController::class, 'store'])->middleware('throttle:20,1');
+    Route::post('/api/pages/{page}/meetings', [MeetingRecordingController::class, 'store'])->middleware('throttle:20,1');
+    Route::get('/api/calls/{recording}', [CallRecordingController::class, 'show']);
+    Route::post('/api/calls/{recording}/retry', [CallRecordingController::class, 'retry'])->middleware('throttle:6,1');
+    Route::get('/api/passwords', [PasswordController::class, 'index']);
+    Route::post('/api/passwords', [PasswordController::class, 'store'])->middleware('throttle:20,1');
+    Route::put('/api/passwords/{passwordEntry}', [PasswordController::class, 'update'])->middleware('throttle:20,1');
+    Route::post('/api/passwords/{passwordEntry}/reveal', [PasswordController::class, 'reveal'])->middleware('throttle:12,1');
+    Route::get('/app/{path?}', [KnowledgeController::class, 'shell'])->where('path', '.*');
+    Route::prefix('api')->controller(KnowledgeController::class)->group(function () {
+        Route::get('/pages', 'tree');
+        Route::post('/pages', 'save');
+        Route::get('/pages/{page}', 'show');
+        Route::put('/pages/{page}', 'save');
+        Route::get('/pages/{page}/revisions', 'revisions');
+        Route::post('/pages/{page}/restore/{revision}', 'restore');
+        Route::post('/pages/{page}/publish', 'publish');
+        Route::delete('/pages/{page}/publish', 'unpublish');
+        Route::post('/pages/{page}/assets', 'upload');
+        Route::get('/pages/{page}/export/{format}', 'exportPage')->whereIn('format', ['pdf', 'docx']);
+        Route::get('/search', 'search')->middleware('throttle:90,1');
+        Route::get('/changes', 'changes');
+        Route::get('/widgets', 'widgets');
+        Route::post('/widgets', 'createWidget');
+        Route::get('/settings', 'settings');
+        Route::put('/settings', 'configure');
+        Route::post('/index', 'index')->middleware('throttle:3,1');
+        Route::get('/tokens', 'tokens');
+        Route::post('/tokens', 'token');
+        Route::delete('/tokens/{token}', 'revoke');
+        Route::post('/users', 'user');
+        Route::put('/users/{user}/role', 'role');
+        Route::put('/users/{user}/call-permissions', 'callPermissions');
+        Route::post('/audits', 'audit')->middleware('throttle:5,1');
+        Route::get('/audits/{audit}', 'auditShow');
+        Route::post('/audits/{audit}/apply', 'auditApply');
+    });
+});
